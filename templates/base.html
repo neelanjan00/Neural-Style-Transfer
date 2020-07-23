@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Style Transfer</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="stylesheet" href="../static/stylesheets/fullpage.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Lato&family=Open+Sans+Condensed:wght@700&display=swap" rel="stylesheet">
+</head>
+<style>
+    * {
+        box-shadow: none !important;
+    }
+
+    h1{
+        font-family: 'Open Sans Condensed', sans-serif;
+        font-weight: 700;
+        text-shadow: 1px 1px 10px rgb(0, 0, 0);
+    }
+
+    h4, h5{
+        font-family: 'Lato', sans-serif;
+        text-shadow: 1px 1px 10px rgb(0, 0, 0);
+    }
+
+    #textbox1, #textbox2, #textbox5 {
+        color: white;
+    }
+
+    .image-container {
+        width: 300px;
+        min-height: 100px;
+        border: 2px solid #dddddd;
+        margin-bottom: 15px;
+        font-weight: bold;
+        color: #cccccc;
+    }
+
+    .image-preview__image {
+        display: none;
+        width: 100%;
+    }
+
+    .interactiveDiv {
+        background-color: rgb(255, 255, 255);
+        padding: 20px;
+        border-radius: 15px;
+        height: auto;
+        max-width: 80vh;
+    }
+
+    @media only screen and (min-width: 767px) {
+
+        #myImg {
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        #myImg:hover {
+            opacity: 0.7;
+        }
+
+        #img01 {
+            width: auto;
+            height: 80vh !important;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            padding-top: 100px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+        }
+
+        .modal-content {
+            animation-name: zoom;
+            animation-duration: 0.6s;
+        }
+
+        @keyframes zoom {
+            from {
+                transform: scale(0)
+            }
+
+            to {
+                transform: scale(1)
+            }
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    }
+
+    @media only screen and (max-width: 700px) {
+        .modal-content {
+            width: 100%;
+        }
+    }
+</style>
+
+<body>
+    {% if img %}
+    <div id="myModal" class="modal">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="img01">
+    </div>
+    {% endif %}
+    <div id="fullpage">
+        <div class="section" style="background-image: url('../static/images/bgr1.jpg'); 
+                                    background-size: cover;">
+            <div class="container-fluid" id="textbox1">
+                <div class="row">
+                    <div class="col-md-6 offset-md-6 col-12">
+                        <h1 id="title1"><b>NEURAL STYLE TRANSFER</b></h1>
+                        <h4 id="title2">Creating Art with Deep Learning</h4>
+                    </div>
+                </div>
+            </div>/#section3
+        </div>
+        <div class="section" style="background-image: url('../static/images/bgr2.png'); 
+                                    background-size: cover;">
+            <div class="container-fluid" id="textbox2">
+                <div class="row">
+                    <div class="col-md-6 col-12">
+                        <h1 class="pl-3" id="title1">What is Neural Style Transfer</h1>
+                        <h4 class="pl-3" id="subtitle1">
+                            Neural style transfer is an optimization technique uses three 
+                            images, a content image, a style reference image (such as an artwork by a 
+                            famous painter) and the input image we want to style — and blend them 
+                            together such that the input image is transformed to look like the content 
+                            image, but “painted” in the style of the style image.
+                            <br><br>
+                            The approach followed in this algorithm implements the
+                            <a href="https://cs.stanford.edu/people/jcjohns/eccv16/">
+                                <u style="color: white;"> Johnson et al. (2016) </u>
+                            </a>
+                            method, which is up to three fold faster than the original 
+                            <a href="https://arxiv.org/abs/1508.06576">
+                                <u style="color: white;"> Gatys et al. (2015) </u>
+                            </a>
+                            method.
+                        </h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="section" style="background-image: url('../static/images/bgr3.jpg'); 
+                                    background-size: cover; background-position: bottom;">
+            <center>
+                <div class="interactiveDiv mx-1 mx-md-0">
+                    <form action="/" method="POST" enctype="multipart/form-data">
+                        <div id="content_image_submit">
+                            <div class="image-preview mb-3" id="imagePreview">
+                                <img alt="Image Preview" class="image-preview__image img-fluid"
+                                    style="width: auto; max-height: 70vh;">
+                            </div>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" name="input_image" id="customFile">
+                                <label class="custom-file-label" for="customFile">
+                                    Upload jpg/jpeg/png Image
+                                </label>
+                            </div>
+                            <button class="btn btn-light mt-4" style="border: 1px solid black; display: none;"
+                                onclick="styleImageSelection(event)" id="next_button">
+                                NEXT
+                            </button>
+                        </div>
+                        <input type="hidden" id="styleNumber" value="1" name="styleNumber">
+                        <div id="style_image_submit" style="display: none;">
+                            <div>
+                                <div class="row">
+                                    <div class="col-2 p-0" style="display: flex; align-items: center; 
+                                                                  justify-content: center;">
+                                        <span style="cursor: pointer;" onclick=leftChevronClick()>
+                                            <svg width="4em" height="4em" viewBox="0 0 16 16" class="bi bi-chevron-compact-left" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" d="M9.224 1.553a.5.5 0 0 1 .223.67L6.56 8l2.888 5.776a.5.5 0 1 1-.894.448l-3-6a.5.5 0 0 1 0-.448l3-6a.5.5 0 0 1 .67-.223z"/>
+                                            </svg>
+                                        </span>
+                                    </div>
+                                    <div class="col-8 p-0">
+                                        <img src="../static/images/styles/candy.jpg" class="img-fluid" id="style_image">
+                                    </div>
+                                    <div class="col-2 p-0" style="display: flex; align-items: center;
+                                                                  justify-content: center;">
+                                        <span style="cursor: pointer;" onclick=rightChevronClick()>
+                                            <svg width="4em" height="4em" viewBox="0 0 16 16" class="bi bi-chevron-compact-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" d="M6.776 1.553a.5.5 0 0 1 .671.223l3 6a.5.5 0 0 1 0 .448l-3 6a.5.5 0 1 1-.894-.448L9.44 8 6.553 2.224a.5.5 0 0 1 .223-.671z"/>
+                                            </svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <center>
+                                    <h3 class="mt-2" id="style_image_name">candy</h5>
+                                    <button class="btn btn-primary mt-2" type="submit">SUBMIT</button>
+                                </center>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </center>
+        </div>
+        {% if img %}
+        <div class="section" style="background-image: url('../static/images/bgr4.png'); 
+                                    background-size: cover;">
+            <center>
+                <div class="interactiveDiv mx-2 mx-md-0" style="width: fit-content;">
+                    <img src="data:image/jpeg;charset=utf-8;base64,{{img}}" id="myImg" class="img-fluid"
+                        style="width: auto; max-height: 70vh;" /><br>
+                    <button class="btn btn-light mt-3 p-1" style="border: 1px solid black" onclick="imageDownload()">
+                        DOWNLOAD
+                    </button>
+                </div>
+            </center>
+        </div>
+        {% endif %}
+        <div class="section" style="background-image: url('../static/images/bgr5.png'); 
+                                    background-size: cover;">
+            <div class="container-fluid" id="textbox5">
+                <div class="row">
+                    <div class="col-md-6 offset-md-6 col-12">
+                        <h1>ABOUT</h1>
+                        <h4>
+                            This project is made by Neelanjan Manna, a fellow Machine Learning enthusiast 
+                            currently enrolled in Bachelor of Technology course at KIIT University.
+                        </h4>
+                        <a href="https://linkedin.com/in/neelanjan00/" target="blank"><button class="btn btn-light" id="linkedin" style="border: 1px solid black;">My Linkedin</button></a>
+                        <a href="https://github.com/neelanjan00/" target="blank"><button class="btn btn-light ml-3" id="github" style="border: 1px solid black;">My Github</button></a>
+                        <br><br>
+                        <h4>
+                            Special thanks to 
+                            <a href="https://github.com/rkrohk" style="color: white;">
+                                <u>Rohan Kakar</u>
+                            </a> 
+                            and 
+                            <a href="https://github.com/sahilkr24" style="color: white;";">
+                                <u>Sahil Kumar</u>
+                            </a> 
+                            for helping with the debugging of this website.
+                        </h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        crossorigin="anonymous"></script>
+    <script src="../static/scripts/fullpage.min.js"></script>
+    <script>
+        var fullpage_api = new fullpage('#fullpage', {
+            autoScrolling: true,
+            scrollHorizontally: true,
+            verticallyCentered: true,
+            responsiveWidth: 767,
+            anchors: ['section1', 'section2', 'section3', 'section4']
+        });
+
+        $(".custom-file-input").on("change", function () {
+            var fileName = $(this).val().split("\\").pop();
+            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+        });
+
+        const inpFile = document.getElementById('customFile');
+        const previewContainer = document.getElementById('imagePreview');
+        const previewImage = previewContainer.querySelector('.image-preview__image');
+
+        inpFile.addEventListener('change', function () {
+            const file = this.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+
+                previewImage.style.display = "block";
+
+                reader.addEventListener("load", function () {
+                    previewImage.setAttribute("src", this.result);
+                });
+
+                reader.readAsDataURL(file);
+            }
+
+            document.getElementById('next_button').style.display = 'block';
+        });
+
+        function styleImageSelection(e) {
+            e.preventDefault();
+            document.getElementById('content_image_submit').style.display = 'none';
+            document.getElementById('style_image_submit').style.display = 'block';
+        }
+
+        var imageSelected = 1;
+
+        var styleImageList = {
+            1 : "candy.jpg",
+            2 : "composition_vii.jpg",
+            3 : "feathers.jpg",
+            4 : "la_muse.jpg",
+            5 : "mosaic.jpg",
+            6 : "starry_night.jpg",
+            7 : "the_scream.jpg",
+            8 : "udnie.jpg",
+            9 : "wave.jpg"
+        };
+
+        function leftChevronClick() {
+            if(imageSelected !== 1) {
+                imageSelected--;
+                document.getElementById('styleNumber').value = imageSelected;
+                document.getElementById('style_image').src = "../static/images/styles/" + styleImageList[imageSelected];
+                var imageName = styleImageList[imageSelected].split('.')[0];
+                imageName = imageName.replace("_", " ");
+                document.getElementById("style_image_name").innerHTML = imageName;
+            }
+        }
+
+        function rightChevronClick() {
+            if(imageSelected !== 9) {
+                imageSelected++;
+                document.getElementById('styleNumber').value = imageSelected;
+                document.getElementById('style_image').src = "../static/images/styles/" + styleImageList[imageSelected];
+                var imageName = styleImageList[imageSelected].split('.')[0];
+                imageName = imageName.replace("_", " ");
+                document.getElementById("style_image_name").innerHTML = imageName;
+            }
+        }
+    </script>
+    {% if img %}
+    <script>
+        if (window.innerWidth > 767) {
+            var modal = document.getElementById("myModal");
+
+            var img = document.getElementById("myImg");
+            var modalImg = document.getElementById("img01");
+            var captionText = document.getElementById("caption");
+            img.onclick = function () {
+                modal.style.display = "block";
+                modalImg.src = this.src;
+            }
+
+            var span = document.getElementsByClassName("close")[0];
+
+            span.onclick = function () {
+                modal.style.display = "none";
+            }
+
+            window.onkeydown = function (event) {
+                if (event.keyCode == 27) {
+                    modal.style.display = "none";
+                }
+            };
+        }
+
+        function imageDownload() {
+            var a = document.createElement("a");
+            a.href = "data:image/png;base64," + '{{img}}';
+            a.download = "StyleTransferImage.jpg";
+            a.click();
+        }
+
+        fullpage_api.silentMoveTo(4);
+    </script>
+    {% endif %}
+</body>
+
+</html>
